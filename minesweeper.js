@@ -15,6 +15,9 @@ class Minesweeper {
                     row: i,
                     col: j,
                     hasMine: false,
+                    isRevealed: false,
+                    numAdjMines: 0,
+                    isFlagged: false,
                 });
             }
             board.push(row);
@@ -39,6 +42,11 @@ class Minesweeper {
                 numMinesGenerated++;
             }
         }
+
+        this.board.flat().forEach((tile) => {
+            const adjMines = this.getAdjTiles(tile).filter((t) => t.hasMine);
+            tile.numAdjMines = adjMines.length;
+        });
     }
 
     getAdjTiles(tile) {
@@ -62,6 +70,36 @@ class Minesweeper {
                     c[1] < this.numCols
             )
             .map((c) => this.board[c[0]][c[1]]);
+    }
+
+    revealTile(row, col) {
+        const tile = this.board[row][col];
+        if (tile.isFlagged) return;
+        if (tile.isRevealed) {
+            const adjTiles = this.getAdjTiles(tile);
+            const numAdjFlags = adjTiles.filter((t) => t.isFlagged).length;
+            if (numAdjFlags === tile.numAdjMines) {
+                adjTiles
+                    .filter((t) => !t.isRevealed && !(t.hasMine && t.isFlagged))
+                    .forEach((t) => this.revealTile_helper(t));
+            }
+        } else {
+            this.revealTile_helper(tile);
+        }
+    }
+
+    revealTile_helper(tile) {
+        tile.isRevealed = true;
+        if (!tile.hasMine && tile.numAdjMines === 0) {
+            this.getAdjTiles(tile)
+                .filter((t) => !t.isRevealed && !t.hasMine && !t.isFlagged)
+                .forEach((t) => this.revealTile_helper(t));
+        }
+    }
+
+    flagTile(row, col) {
+        const tile = this.board[row][col];
+        tile.isFlagged = !tile.isFlagged;
     }
 }
 

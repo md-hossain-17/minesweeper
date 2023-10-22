@@ -1,3 +1,9 @@
+* {
+    font-family: 'Inconsolata', monospace;
+    color: #333;
+    cursor: default;
+}
+
 .container {
     display: flex;
     justify-content: center;
@@ -17,8 +23,30 @@
     height: 35px;
     width: 35px;
     border: 1px solid #b3b3b3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
 }
 
 .tile[data-state='hidden']:hover {
     background-color: #e6e6e6;
+}
+
+.tile[data-state='revealed-mine'] {
+    background-color: #cc0000;
+    border-color: #b30000;
+}
+
+.tile[data-state='revealed-count'],
+.tile[data-state='revealed-safe'] {
+    background-color: #d9d9d9;
+}
+
+.tile[data-state='revealed-count']:hover {
+    background-color: #ccc;
+}
+
+.tile[data-state='flagged'] {
+    background-color: gold;
 }

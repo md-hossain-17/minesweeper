@@ -1,0 +1,24 @@
+.container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.board {
+    width: fit-content;
+    border: 1px solid #b3b3b3;
+}
+
+.row {
+    display: flex;
+}
+
+.tile {
+    height: 35px;
+    width: 35px;
+    border: 1px solid #b3b3b3;
+}
+
+.tile[data-state='hidden']:hover {
+    background-color: #e6e6e6;
+}

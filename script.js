@@ -30,12 +30,16 @@ const BOARD_CONFIG = {
 };
 const minesweeper = new Minesweeper();
 
+const CONFETTI_SETTINGS = { target: 'confetti-canvas', rotate: true };
+let confetti;
+
 const setUp = () => {
     minesweeper.setUp(
         BOARD_CONFIG[difficulty.value].numRows,
         BOARD_CONFIG[difficulty.value].numCols,
         BOARD_CONFIG[difficulty.value].numMines
     );
+    confetti?.clear();
     statusIcon.textContent = STATUS_EMOJI[minesweeper.status];
     mineCounter.textContent = BOARD_CONFIG[difficulty.value].numMines;
     createBoard();
@@ -85,12 +89,10 @@ const revealTile = (e) => {
     statusIcon.textContent = STATUS_EMOJI[minesweeper.status];
     minesweeper.board
         .flat()
-        .filter((t) => t.isRevealed)
+        .filter((t) => t.isRevealed && !t.hasMine && !t.isFlagged)
         .forEach((t) => {
             const element = getTileElement(t);
-            if (t.hasMine) {
-                element.dataset.state = 'revealed-mine';
-            } else if (t.numAdjMines > 0) {
+            if (t.numAdjMines > 0) {
                 element.textContent = t.numAdjMines;
                 element.dataset.state = 'revealed-count';
                 element.style.color = MINE_COUNT_COLOR[t.numAdjMines];
@@ -100,12 +102,7 @@ const revealTile = (e) => {
             element.removeEventListener('contextmenu', flagTile);
         });
 
-    if (['GAME_WIN', 'GAME_LOSE'].includes(minesweeper.status)) {
-        document.querySelectorAll('.tile').forEach((e) => {
-            e.removeEventListener('click', revealTile);
-            e.removeEventListener('contextmenu', flagTile);
-        });
-    }
+    handleGameover();
 };
 
 const flagTile = (e) => {
@@ -119,6 +116,36 @@ const flagTile = (e) => {
     const numFlags = minesweeper.board.flat().filter((t) => t.isFlagged).length;
     mineCounter.textContent =
         BOARD_CONFIG[difficulty.value].numMines - numFlags;
+};
+
+const handleGameover = () => {
+    if (!['GAME_WIN', 'GAME_LOSE'].includes(minesweeper.status)) return;
+    document.querySelectorAll('.tile').forEach((e) => {
+        e.removeEventListener('click', revealTile);
+        e.removeEventListener('contextmenu', flagTile);
+    });
+    if (minesweeper.status === 'GAME_WIN') {
+        confetti = new ConfettiGenerator(CONFETTI_SETTINGS);
+        confetti.render();
+    } else {
+        minesweeper.board
+            .flat()
+            .filter((t) => t.hasMine || t.isFlagged)
+            .forEach((t) => {
+                const element = getTileElement(t);
+                if (t.hasMine && t.isFlagged) {
+                    element.textContent = 'check';
+                    element.style.color = '#006600';
+                } else if (!t.hasMine && t.isFlagged) {
+                    element.textContent = 'close';
+                    element.style.color = '#b30000';
+                } else if (t.hasMine) {
+                    element.textContent = 'explosion';
+                    element.style.color = '#b30000';
+                }
+                element.classList.add('material-symbols-outlined');
+            });
+    }
 };
 
 setUp();

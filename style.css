@@ -2,12 +2,48 @@
     font-family: 'Inconsolata', monospace;
     color: #333;
     cursor: default;
+    box-sizing: border-box;
+}
+
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
 .container {
     display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.control-bar {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    margin-bottom: 10px;
+}
+
+.control-bar > * {
+    width: 70px;
+}
+
+#difficulty {
+    font-size: 14px;
+    height: 35px;
+}
+
+.status-icon {
+    font-size: 45px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.mine-counter {
+    font-size: 35px;
+    border: 1px solid #333;
+    display: flex;
     justify-content: center;
-    margin-top: 20px;
+    align-items: center;
+    height: 35px;
 }
 
 .board {

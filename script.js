@@ -1,5 +1,8 @@
 import Minesweeper from './minesweeper.js';
 
+const difficulty = document.querySelector('#difficulty');
+const statusIcon = document.querySelector('.status-icon');
+const mineCounter = document.querySelector('.mine-counter');
 const boardElement = document.querySelector('.board');
 
 const MINE_COUNT_COLOR = {
@@ -13,15 +16,36 @@ const MINE_COUNT_COLOR = {
     8: 'grey',
 };
 
-const NUM_ROWS = 8;
-const NUM_COLS = 10;
-const NUM_MINES = 10;
-const minesweeper = new Minesweeper(NUM_ROWS, NUM_COLS, NUM_MINES);
+const STATUS_EMOJI = {
+    NOT_STARTED: 'sentiment_neutral',
+    IN_PROGRESS: 'sentiment_satisfied',
+    GAME_WIN: 'sentiment_very_satisfied',
+    GAME_LOSE: 'sentiment_very_dissatisfied',
+};
+
+const BOARD_CONFIG = {
+    easy: { numRows: 8, numCols: 10, numMines: 10 },
+    medium: { numRows: 14, numCols: 18, numMines: 40 },
+    hard: { numRows: 20, numCols: 24, numMines: 99 },
+};
+const minesweeper = new Minesweeper();
+
+const setUp = () => {
+    minesweeper.setUp(
+        BOARD_CONFIG[difficulty.value].numRows,
+        BOARD_CONFIG[difficulty.value].numCols,
+        BOARD_CONFIG[difficulty.value].numMines
+    );
+    statusIcon.textContent = STATUS_EMOJI[minesweeper.status];
+    mineCounter.textContent = BOARD_CONFIG[difficulty.value].numMines;
+    createBoard();
+};
 
 const createBoard = () => {
-    for (let i = 0; i < NUM_ROWS; i++) {
+    boardElement.textContent = '';
+    for (let i = 0; i < BOARD_CONFIG[difficulty.value].numRows; i++) {
         const rowElement = document.createElement('div');
-        for (let j = 0; j < NUM_COLS; j++) {
+        for (let j = 0; j < BOARD_CONFIG[difficulty.value].numCols; j++) {
             const tileElement = document.createElement('div');
             tileElement.dataset.row = i;
             tileElement.dataset.col = j;
@@ -38,6 +62,7 @@ const createBoard = () => {
 const init = (e) => {
     const [row, col] = getEventCoord(e);
     minesweeper.init(row, col);
+    statusIcon.textContent = STATUS_EMOJI[minesweeper.status];
     document.querySelectorAll('.tile').forEach((e) => {
         e.removeEventListener('click', init);
         e.addEventListener('click', revealTile);
@@ -57,6 +82,7 @@ const getTileElement = (tile) =>
 const revealTile = (e) => {
     const [row, col] = getEventCoord(e);
     minesweeper.revealTile(row, col);
+    statusIcon.textContent = STATUS_EMOJI[minesweeper.status];
     minesweeper.board
         .flat()
         .filter((t) => t.isRevealed)
@@ -73,6 +99,13 @@ const revealTile = (e) => {
             }
             element.removeEventListener('contextmenu', flagTile);
         });
+
+    if (['GAME_WIN', 'GAME_LOSE'].includes(minesweeper.status)) {
+        document.querySelectorAll('.tile').forEach((e) => {
+            e.removeEventListener('click', revealTile);
+            e.removeEventListener('contextmenu', flagTile);
+        });
+    }
 };
 
 const flagTile = (e) => {
@@ -82,8 +115,14 @@ const flagTile = (e) => {
     const tile = minesweeper.board[row][col];
     const element = getTileElement(tile);
     element.dataset.state = tile.isFlagged ? 'flagged' : 'hidden';
+
+    const numFlags = minesweeper.board.flat().filter((t) => t.isFlagged).length;
+    mineCounter.textContent =
+        BOARD_CONFIG[difficulty.value].numMines - numFlags;
 };
 
-createBoard();
+setUp();
 
 document.addEventListener('contextmenu', (e) => e.preventDefault());
+difficulty.addEventListener('change', setUp);
+statusIcon.addEventListener('click', setUp);

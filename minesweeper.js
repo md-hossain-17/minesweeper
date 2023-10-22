@@ -1,5 +1,14 @@
 class Minesweeper {
-    constructor(numRows, numCols, numMines) {
+    constructor() {
+        this.status = '';
+        this.numRows = 0;
+        this.numCols = 0;
+        this.numMines = 0;
+        this.board = [];
+    }
+
+    setUp(numRows, numCols, numMines) {
+        this.status = 'NOT_STARTED';
         this.numRows = numRows;
         this.numCols = numCols;
         this.numMines = numMines;
@@ -26,6 +35,7 @@ class Minesweeper {
     }
 
     init(row, col) {
+        this.status = 'IN_PROGRESS';
         const tile = this.board[row][col];
         const adjTiles = this.getAdjTiles(tile);
         let numMinesGenerated = 0;
@@ -89,12 +99,24 @@ class Minesweeper {
     }
 
     revealTile_helper(tile) {
+        if (['GAME_WIN', 'GAME_LOSE'].includes(this.status)) return;
         tile.isRevealed = true;
-        if (!tile.hasMine && tile.numAdjMines === 0) {
+        if (tile.hasMine) {
+            this.status = 'GAME_LOSE';
+            return;
+        }
+
+        if (tile.numAdjMines === 0) {
             this.getAdjTiles(tile)
                 .filter((t) => !t.isRevealed && !t.hasMine && !t.isFlagged)
                 .forEach((t) => this.revealTile_helper(t));
         }
+
+        const numRevealedTiles = this.board
+            .flat()
+            .filter((t) => t.isRevealed && !t.hasMine).length;
+        const target = this.numRows * this.numCols - this.numMines;
+        if (numRevealedTiles === target) this.status = 'GAME_WIN';
     }
 
     flagTile(row, col) {

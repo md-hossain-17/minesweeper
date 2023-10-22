@@ -11,12 +11,25 @@
             href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@600&display=swap"
             rel="stylesheet"
         />
+        <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        />
 
         <link rel="stylesheet" href="style.css" />
         <script type="module" src="script.js" defer></script>
     </head>
     <body>
         <div class="container">
+            <div class="control-bar">
+                <select name="difficulty" id="difficulty">
+                    <option value="easy" selected>Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                </select>
+                <div class="material-symbols-outlined status-icon"></div>
+                <div class="mine-counter"></div>
+            </div>
             <div class="board"></div>
         </div>
     </body>
